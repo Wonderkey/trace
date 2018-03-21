@@ -38,7 +38,6 @@ def tt(s,n):
     tmp=s^2-4*n
     div=tmp.divisors()
     div.reverse()
-    print div
     t0=1
     for t in div:
         if (t<=sqrt(tmp)) or (tmp % t^2 ==0):
@@ -55,28 +54,17 @@ def V(n,N):
     s=0
     while (s^2-4*n<0):
         t=Integer(tt(s,n))
-        try:
-            for f in divisors(t):
-                vec.append(c(s,f,N,n))
-                vec.append(c(-s,f,N,n))
-            print 1
-        except ValueError:
-            pass
+        for f in divisors(t):
+            vec.append(c(s,f,N,n))
+            vec.append(c(-s,f,N,n))
         s=s+1
-    try:
-        for d in n.divisors():
-            if d^2>n:
-                break
-            for f in (n//d-d).divisors():
-                vec.append(c(n//d+d,f,N,n))
-                print 2
-    except ValueError:
-        pass
+    for d in n.divisors():
+        if d^2>n:
+            break
+        for f in (n//d-d).divisors():
+            vec.append(c(n//d+d,f,N,n))
     return vec
 
 
-print c(4,2,11,3)
-
-print c(1,1,11,3)
 
 print V(3,11)

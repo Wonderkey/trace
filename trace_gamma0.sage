@@ -90,15 +90,15 @@ def c(s, f, N, n, chi): #require N != 1
 
 
 def tt(s,n):
-    tmp = s^2-4*n
-    div = divisors(tmp)
+    det = s^2-4*n
+    div = divisors(det)
     div.reverse()
     t0=1
     for t in div:
-        if (t <= sqrt(tmp)) or (tmp % (t^2) == 0):
+        if (t <= sqrt(det)) and (det % (t^2) == 0):
             t0 = t
             break
-    if ((tmp/t0^2) % 4 == 1):
+    if ((det / t0^2) % 4 == 1):
         return t0
     else:
         return t0/2
@@ -140,22 +140,29 @@ def phi_1(N):
     return res
 
 
-def trace_gamma0(n,k,N,chi):
-    #part1:abc
-    tr = 0
-    s_set = [] # s^2-4n square or negative
-    s_set.append(0)
-    #s_set.append(0)
+def gen_ss_set(n):
+    ss = [0]
     it = 1
     while it^2 - 4 * n < 0:
-        s_set.append(it)
-        s_set.append(-it)
+        ss.append(it)
+        ss.append(-it)
         it += 1
+    return ss
+
+
+def gen_s_set(n):
+    s_set = gen_ss_set(n)
     for it in divisors(n):
         if it^2 >= n:
             break
         s_set.append(n / it + it)
         s_set.append(- n / it - it)
+    return s_set
+
+def trace_gamma0(n,k,N,chi):
+    #part1:abc
+    tr = 0
+    s_set = gen_s_set(n)
     for s in s_set:
         tmp = 0
         for f in divisors(tt(s,n)):

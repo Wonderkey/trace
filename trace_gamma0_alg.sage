@@ -2,9 +2,13 @@
 load("trace_gamma0.sage")
 
 
-def M_dic(n):
+def M_dic(n, chi):
     s_set = gen_s_set(n)
     M_dict = {}
+    mo = chi.modulus()
+    for p in prime_divisors(mo):
+        if gcd(p, n) == 1:
+            M_dict[p] = 2 * mo.ord(p) + 1
     for s in s_set:
         if s >= 0:
             det = s ^ 2 - 4 * n
@@ -17,78 +21,80 @@ def M_dic(n):
     return M_dict
 
 
-def pre_cal(n, k, M_dic):
+def pre_cal(n, k):
     s_set = gen_s_set(n)
     aa = {} #a_dic
     for s in s_set:
         aa[s] = hij_a(s,k,n)
     bb = {} #b_dic
-    c_dic = {} #c_dic
     for s in s_set:
         for f in divisors(tt(s,n)):
             bb[(s,f)] = hij_b(s, f, n)
-            for p in M_dic.keys():
-                p = Integer(p)
-                for it in range(1, M_dic[p] + 1):
-                    c_dic[(s,f,p,it)] = cc(s,f,p^it,n,p,trivial_character(p^it))
-    return (aa, bb, c_dic)
+    return (aa, bb)
 
 
-def find_zero_levels(n, ss_set, s_0, num, M, a_dic, b_dic, c_dic):
-    print(num)
+def find_zero_levels(val, n, ss_set, s_0, num, M, a_dic, b_dic, chi):
+    #print(num)
     if num == 0: # calculation part
         res = []
         s_set = gen_s_set(n)
-        for N0 in divisors(M):
+        til_N = chi.modulus()
+        for tmp_N0 in divisors(M/til_N):
+            N0 = tmp_N0 * til_N
+            tmp_chi = chi.extend(N0)
             tmp_tr = 0
             for s in s_set:
-                if s not in s_0:
+                if (s not in s_0) and (-s not in s_0):
                     tmp = 0
                     for f in divisors(tt(s,n)):
-                        ccc = 1
-                        for p in prime_divisors(N0):
-                            ccc *= c_dic[(s, f, p, N0.ord(p))] 
-                        tmp += b_dic[(s,f)] * ccc
+                        tmp += b_dic[(s,f)] * c(s, f, N0, n, tmp_chi)
                     tmp_tr += a_dic[s] * tmp
             if type(tmp_tr) is type(1+I):
                 tmp_tr = tmp_tr.simplify_full()
-            print(s_0,N0)
-            print(tmp_tr)
-            if tmp_tr == 0:
-                res.append((N0,s_0))
+            #print(s_0,N0)
+            #print(tmp_tr)
+            if val == -1: #k > 2
+                if tmp_tr == 0:
+                    res.append((N0,s_0))
+            else: #k == 2
+                tmp_sig = sigma(n)
+                for it in range(0, val - len(prime_divisors(N0)) + 1):
+                    if tmp_tr * (2 ^ it) == tmp_sig:
+                        res.append((N0, it, s_0))
         return res
     else: #search part
         s = ss_set[num - 1]
-        res = find_zero_levels(n, ss_set, copy(s_0), num - 1, M, a_dic, b_dic, c_dic)
+        res = find_zero_levels(val, n, ss_set, copy(s_0), num - 1, M, a_dic, b_dic, chi)
         s_0.append(s)
-        res.extend(find_zero_levels(n, ss_set, copy(s_0), num - 1, M, a_dic, b_dic, c_dic))
+        res.extend(find_zero_levels(val, n, ss_set, copy(s_0), num - 1, M, a_dic, b_dic, chi))
         return res
 
 
-def trace_gamma0_alg(n,k): # k>2
-    M_dict = M_dic(n)
+def trace_gamma0_alg(n, k, chi = trivial_character(1)): 
+    M_dict = M_dic(n,chi)
     M = 1
     for p in M_dict.keys():
         M *= p ^ (M_dict[p])
     # Step 1
-    (a_dic, b_dic, c_dic) = pre_cal(n, k, M_dict) #pre-calculate
+    (a_dic, b_dic) = pre_cal(n, k) #pre-calculate
     s_0 = []
-    ss_set = gen_ss_set(n)
-    res = find_zero_levels(n, ss_set, s_0, len(ss_set), M, a_dic, b_dic, c_dic) #DFS
+    ss_set = list(filter(lambda x: x>=0, gen_ss_set(n)))
+    if k == 2 and chi.is_trivial():
+        tmp = 3
+        for d in divisors(n):
+            if d ^ 2 > n:
+                break
+            tmp = max(tmp, (n - d^2).ord(2))
+        val = len(prime_divisors(M)) + sigma(n).ord(2) + tmp
+        res = find_zero_levels(val, n, ss_set, s_0, len(ss_set), M, a_dic, b_dic, chi) 
+    else:
+        res = find_zero_levels(-1, n, ss_set, s_0, len(ss_set), M, a_dic, b_dic, chi) #DFS
     # Step 2
     # end
     print("zero-level N_0 and epsilon_s = 0 terms are:")
     for it in res:
         print(it)
     return
-
-
-
-
-
-
-
-
 
 
 

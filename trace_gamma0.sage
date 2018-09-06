@@ -1,12 +1,3 @@
-def order_of_int(l,n): #return m such that l^m|n
-    if n == 0:
-        raise ValueError('n cannot be 0')
-    o=1
-    while n % (l^o) ==0:
-        o=o+1
-    return o-1
-
-
 def roots_of_unity_num(d):
     if d == -4:
         return 4
@@ -17,24 +8,7 @@ def roots_of_unity_num(d):
 
 
 def h0(n):
-    d = n.squarefree_part()
-    if mod(d,4) != 1:
-        d = d * 4
-    m = sqrt(n/d)
-    #part 1
-    if roots_of_unity_num(n) == 2:
-        h = -m / abs(d)
-    else:
-        h = -m / abs(d) * roots_of_unity_num(d) / 2
-    #part 2
-    tmp = 0
-    for it in range(1,abs(d)):
-        tmp = tmp + kronecker(d,it)*it
-    h = h * tmp
-    #part 3
-    for it in prime_divisors(m):
-        h = h * (1-kronecker(d,it)/it)
-    return h * 2 / roots_of_unity_num(n)
+    return (Integer(n).class_number()) * 2 / roots_of_unity_num(n)
 
 
 def hij_a(s, k, n):
@@ -64,8 +38,8 @@ def cc(s, f, N, n, ll, chi):
     A=[]
     B=[]
     count = 0
-    v = order_of_int(ll, N)
-    b = order_of_int(ll, f)
+    v = Integer(N).ord(ll)
+    b = Integer(f).ord(ll)
     for x in range(ll ^ (v + b)):
         if (2 * x - s) % (ll ^ b) ==0:
             if (x ^ 2 - s * x + n) % (ll ^ (v + 2 * b)) == 0:
@@ -95,7 +69,7 @@ def tt(s,n):
     div.reverse()
     t0=1
     for t in div:
-        if (t <= sqrt(det)) and (det % (t^2) == 0):
+        if det % (t^2) == 0:
             t0 = t
             break
     if ((det / t0^2) % 4 == 1):
@@ -103,28 +77,11 @@ def tt(s,n):
     else:
         return t0/2
 
-'''
-def V(n,N):
-    vec=[]
-    s=0
-    while (s^2-4*n<0):
-        t=Integer(tt(s,n))
-        for f in divisors(t):
-            vec.append(c(s,f,N,n))
-            vec.append(c(-s,f,N,n))
-        s=s+1
-    for d in n.divisors():
-        if d^2>n:
-            break
-        for f in (n//d-d).divisors():
-            vec.append(c(n//d+d,f,N,n))
-    return vec
-'''
 
 def par(ll, N, cond):
-    nu = order_of_int(ll, N)
+    nu = Integer(N).ord(ll)
     rho = (nu/2).floor()
-    ee = order_of_int(ll, cond)
+    ee = Integer(cond).ord(ll)
     if ee >= rho + 1:
         return 2 * (ll^(nu - ee))
     elif nu % 2 == 0:
@@ -159,6 +116,7 @@ def gen_s_set(n):
         s_set.append(- n / it - it)
     return s_set
 
+
 def trace_gamma0(n,k,N,chi):
     #part1:abc
     tr = 0
@@ -178,20 +136,20 @@ def trace_gamma0(n,k,N,chi):
         for p in prime_divisors(N):
             tmp2 = tmp2 * par(p, N, cond)
         tr = tr - (n^(k/2 - 1) * chi(sqrt(n)) * sqrt(n) / 2 * tmp2)
-    #part3:k==2_and_trivialchar
+    #part3:k==2_and_trivialchar (assume (n,N)==1)
     if k == 2 and chi.is_trivial():
         for d in divisors(n):
             tr += n/d
     #end
     tr = tr.simplify_full()
-    #print('the trace of T({}) acting weight {} Gamma_0({}) is {}'.format(n, k, N, tr))
+    print('the trace of T({}) acting weight {} Gamma_0({}) is {}'.format(n, k, N, tr))
     return tr
 
 
 def real_trace_gamma0(n,k,N,chi):
     S = CuspForms(Gamma0(N),k)
     tr = S.hecke_matrix(n).trace()
-    #print('the REAL trace of T({}) acting weight {} Gamma_0({}) is {}'.format(n, k, N, tr))
+    print('the REAL trace of T({}) acting weight {} Gamma_0({}) is {}'.format(n, k, N, tr))
     return tr
 
 
@@ -202,6 +160,7 @@ def test1(n,k,N):
                 if gcd(nn,NN) == 1:
                     ans1 = trace_gamma0(nn,kk,NN,trivial_character(NN))
                     ans2 = real_trace_gamma0(nn,kk,NN,trivial_character(NN))
+                    #print(ans1,ans2)
                     if(ans1 == ans2):
                         print("yes")
                     else:

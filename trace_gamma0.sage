@@ -55,7 +55,7 @@ def cc(s, f, N, n, ll, chi):
     return count
 
 
-def c(s, f, N, n, chi): #require N != 1 
+def c(s, f, N, n, chi): #require N != 1
     count = 1
     for chip in chi.decomposition():
         p = prime_divisors(chip.modulus())[0]
@@ -117,7 +117,7 @@ def gen_s_set(n):
     return s_set
 
 
-def trace_gamma0(n,k,N,chi):
+def trace_gamma0(n,k,N,chi,verbose=False):
     #part1:abc
     tr = 0
     s_set = gen_s_set(n)
@@ -142,14 +142,16 @@ def trace_gamma0(n,k,N,chi):
             tr += n/d
     #end
     tr = tr.simplify_full()
-    print('the trace of T({}) acting weight {} Gamma_0({}) is {}'.format(n, k, N, tr))
+    if verbose:
+        print('the trace of T({}) acting weight {} Gamma_0({}) is {}'.format(n, k, N, tr))
     return tr
 
 
-def real_trace_gamma0(n,k,N,chi):
-    S = CuspForms(Gamma0(N),k)
+def real_trace_gamma0(n,k,N,chi,verbose=False):
+    S = ModularSymbols(Gamma0(N),k,+1).cuspidal_subspace()
     tr = S.hecke_matrix(n).trace()
-    print('the REAL trace of T({}) acting weight {} Gamma_0({}) is {}'.format(n, k, N, tr))
+    if verbose:
+        print('the REAL trace of T({}) acting weight {} Gamma_0({}) is {}'.format(n, k, N, tr))
     return tr
 
 
@@ -165,5 +167,3 @@ def test1(n,k,N):
                         print("yes")
                     else:
                         print("no")
-
-

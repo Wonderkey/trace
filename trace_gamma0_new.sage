@@ -38,7 +38,7 @@ def squarefull_part(n):
     return n / count
 
 
-def trace_gamma0_new(n, k, N, chi):
+def trace_gamma0_new(n, k, N, chi, verbose=False):
     tr = 0
     N1 = N / squarefull_part(N)
     cond = chi.conductor()
@@ -52,29 +52,29 @@ def trace_gamma0_new(n, k, N, chi):
                 if bet == 0:
                     pass
                 else:
-                    tr += chip(t) * (t^(k-1)) * bet * trace_gamma0(n/t^2, k, d/t, chi.restrict(d/t))
+                    tr += chip(t) * (t^(k-1)) * bet * trace_gamma0(n/t^2, k, d/t, chi.restrict(d/t), verbose)
                     #print(trace_gamma0(n/(t^2),k,d/t,chip))
     tr = tr.simplify_full()
-    print('the trace of T({}) acting on newforms weight {} Gamma_0({}) is {}'.format(n,k,N,tr))
+    if verbose:
+        print('the trace of T({}) acting on newforms weight {} Gamma_0({}) is {}'.format(n,k,N,tr))
     return tr
 
 
-def real_trace_gamma0_new(n, k, N, chi):
-    S = CuspForms(Gamma0(N),k)
+def real_trace_gamma0_new(n, k, N, chi, verbose=False):
+    S = ModularSymbols(Gamma0(N),k,+1).cuspidal_subspace()
     SS = S.new_subspace()
     tr = SS.hecke_matrix(n).trace()
-    print('the REAL trace of T({}) acting on newforms weight {} Gamma_0({}) is {}'.format(n,k,N,tr))
+    if verbose:
+        print('the REAL trace of T({}) acting on newforms weight {} Gamma_0({}) is {}'.format(n,k,N,tr))
     return tr
 
 
 def test1_new(n,k,N):
-    for kk in range(3,k+1,2):
+    for kk in range(2,k+1,2):
         for nn in range(3,n+1):
             for NN in range(3,N+1):
                 if gcd(nn,NN) == 1:
                     ans1 = trace_gamma0_new(nn,kk,NN,trivial_character(NN))
                     ans2 = real_trace_gamma0_new(nn,kk,NN,trivial_character(NN))
-                    if(ans1 == ans2):
-                        print("yes")
-                    else:
-                        print("no")
+                    if(ans1 != ans2):
+                        print(kk, nn, NN)

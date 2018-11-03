@@ -1,9 +1,9 @@
 
-load("trace_gamma0_new.sage")
+load("trace_gamma0.sage")
 
 
 def M_dic(n, chi, newform_case = False):
-    s_set = gen_s_set(n)
+    s_set = gen_es_set(n) + gen_us_set(n)
     M_dict = {}
     mo = chi.modulus()
     for p in prime_divisors(mo):
@@ -32,7 +32,7 @@ def c_new(s, f, N, n):
 
 
 def pre_cal(n, k):
-    s_set = gen_s_set(n)
+    s_set = gen_es_set(n) + gen_us_set(n)
     aa = {} #a_dic
     for s in s_set:
         aa[s] = hij_a(s,k,n)
@@ -47,7 +47,7 @@ def find_zero_levels(val, n, ss_set, s_0, num, M, a_dic, b_dic, chi):
     #print(num)
     if num == 0: # calculation part
         res = []
-        s_set = gen_s_set(n)
+        s_set = gen_es_set(n) + gen_us_set(n)
         til_N = chi.modulus()
         for tmp_N0 in divisors(M/til_N):
             N0 = tmp_N0 * til_N
@@ -84,7 +84,7 @@ def find_zero_levels_newform(val, n, ss_set, s_0, s_1, num, M, a_dic, b_dic, chi
     #print(num)
     if num == 0: # calculation part
         res = []
-        s_set = gen_s_set(n)
+        s_set = gen_es_set(n) + gen_us_set(n)
         til_N = chi.modulus()
         for tmp_N0 in divisors(M/til_N):
             N0 = tmp_N0 * til_N
@@ -139,7 +139,7 @@ def trace_gamma0_alg(n, k, chi = trivial_character(1), newform_case = False, ver
     # Step 1
     (a_dic, b_dic) = pre_cal(n, k) #pre-calculate
     s_0 = []
-    ss_set = list(filter(lambda x: x>=0, gen_ss_set(n)))
+    ss_set = gen_es_set(n, neg=False)
     if k == 2 and chi.is_trivial(): #haven't consider newforms
         tmp = 3
         for d in divisors(n):

@@ -95,8 +95,9 @@ def check_fun_coeff_mod(mod_list, rational_fun, term_num=50, verbose=True):
     coeff_list = rational_fun.series(x, term_num).coefficients(sparse=False)
     out_dic = {}
     for it in mod_list:
-        output = [( QQ(coeff) % it) for coeff in coeff_list]
+        output = [(RR(coeff) % it) for coeff in coeff_list]  # weird to use ZZ
         if verbose:
+            print(rational_fun)
             print("coeffs mod {} are:".format(it))
             print(output)
         out_dic[(rational_fun, it)] = output
@@ -108,8 +109,8 @@ def check_funs_coeff_mod(mod_list, rational_funs=False, n=False, N=False, term_n
     if (n != False) and (N != False):
         rational_funs = list_generating_fun(n, N, zero_filter=True)
     out_dic = {}
-    for rat_fun in rational_funs:
-        out_dic.update(check_fun_coeff_mod(mod_list, rat_fun, term_num, verbose))
+    for it in rational_funs:
+        out_dic.update(check_fun_coeff_mod(mod_list, rational_funs[it], term_num, verbose))
     return out_dic
 
 

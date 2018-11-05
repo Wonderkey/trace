@@ -17,7 +17,7 @@ def phi_1(N):
     res = N
     for p in prime_divisors(N):
         res = res * (1 + 1 / p)
-return res
+	return res
 
 
 def arith_beta(m, n): # n is a positive integer

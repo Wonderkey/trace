@@ -24,6 +24,16 @@ def M_dic(n, chi, newform_case = False):
     return M_dict
 
 
+def M_num(n, chi = False, newform_case = False):
+    if chi == False:
+        chi = trivial_character(1)
+    M_dict = M_dic(n, chi, newform_case = False)
+    M = 1
+    for p in M_dict.keys():
+        M *= p ^ (M_dict[p])
+    return M
+
+
 def c_new(s, f, N, n):
     tmp = 0
     for d in divisors(Integer(N)):

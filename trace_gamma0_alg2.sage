@@ -24,7 +24,7 @@ def pre_cal_c(N, n, chi):
 
 def gen_generating_fun(n, N, eps_dic, precal_c=False):
     # N, n coprime, n not a square
-    # get the generating function given n, N and epsilon_s's
+    # get the generating functions given n, N and epsilon_s's
     chi = trivial_character(N)
     if precal_c == False:
         precal_c = pre_cal_c(N, n, chi)
@@ -94,14 +94,35 @@ def check_fun_coeff_mod(mod_list, rational_fun, term_num=50, verbose=True):
     # print the first "term_num" terms modulo each of "mod_list" of the expansion coefficients of "rational_fun"
     coeff_list = rational_fun.series(x, term_num).coefficients(sparse=False)
     out_dic = {}
+    zero_list = []
     for it in mod_list:
-        output = [(RR(coeff) % it) for coeff in coeff_list]  # weird to use ZZ
+        output = [(RR(coeff) % it) for coeff in coeff_list] 
+        check_zero = len(list(filter(lambda t: abs(t) < 0.000001, output[8:])))
         if verbose:
             print(rational_fun)
-            print("coeffs mod {} are:".format(it))
-            print(output)
+            #print("coeffs mod {} are:".format(it))
+            #print(output)
+            print("num of zeros mod {} is: {}".format(it, check_zero))
         out_dic[(rational_fun, it)] = output
-    return out_dic
+        if check_zero == 0:
+            zero_list.append(it)
+    return zero_list
+
+
+def auto_check_fun_coeff_mod(mod_list, rational_fun, end_num, begin_num=False, speed=5, verbose=True):
+    # fast version of "check_fun_coeff_mod" for large "term_num"/ "end_num"
+    if begin_num == False:
+        begin_num = speed
+    term_list = [end_num]
+    while end_num > begin_num:
+        end_num = end_num // speed
+        term_list.append(end_num)
+    term_list.reverse()
+    check_list = check_fun_coeff_mod(mod_list, rational_fun, term_num=term_list[0], verbose=False)
+    if len(term_list) > 1:
+        for it in range(len(term_list) - 1):
+            check_list = check_fun_coeff_mod(check_list, rational_fun, term_num=term_list[it + 1], verbose=False)
+    return check_list
 
 
 def check_funs_coeff_mod(mod_list, rational_funs=False, n=False, N=False, term_num=50, verbose=True):

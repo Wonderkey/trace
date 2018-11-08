@@ -41,7 +41,7 @@ def gen_generating_fun(n, N, eps_dic, precal_c=False):
         s = n / d + d
         for f in divisors(tt(s, n)):
             tmp += hij_b(s, f, n) * precal_c[(s,f)]
-        R += tmp * (2 * d^2) / (n - d^2) / (d^2 * x - 1) 
+        R += tmp * (2 * d^2) / (n - d^2) / (d^2 * x - 1)
     R = R.simplify_full()
     return R
 
@@ -96,8 +96,9 @@ def check_fun_coeff_mod(mod_list, rational_fun, term_num=50, verbose=True):
     out_dic = {}
     zero_list = []
     for it in mod_list:
-        output = [(RR(coeff) % it) for coeff in coeff_list] 
-        check_zero = len(list(filter(lambda t: abs(t) < 0.000001, output[8:])))
+        output = [(ZZ(coeff) % it) for coeff in coeff_list[8:]]
+        #check_zero = len(list(filter(lambda t: abs(t) < 0.000001, output[8:])))
+        check_zero = len([c for c in output if c == 0])
         if verbose:
             print(rational_fun)
             #print("coeffs mod {} are:".format(it))
@@ -133,15 +134,3 @@ def check_funs_coeff_mod(mod_list, rational_funs=False, n=False, N=False, term_n
     for it in rational_funs:
         out_dic.update(check_fun_coeff_mod(mod_list, rational_funs[it], term_num, verbose))
     return out_dic
-
-
-
-
-
-
-
-
-
-
-
-

@@ -14,3 +14,5 @@ find zero levels $N$ of the traces of Hecke operator $T_n$ given weight $k$ and 
 to be continue
 - list_generating_fun(n, N, verbose=True, zero_filter=False)
 - auto_check_fun_coeff_mod(mod_list, rational_fun, end_num, begin_num=False, speed=5, verbose=True)
+- find_period_of_coeff_mod(mod_list, rational_fun, verbose=True)
+- find_zeros_in_coeff_mod(mod_list, rational_fun, verbose=True)

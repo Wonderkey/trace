@@ -134,3 +134,39 @@ def check_funs_coeff_mod(mod_list, rational_funs=False, n=False, N=False, term_n
     for it in rational_funs:
         out_dic.update(check_fun_coeff_mod(mod_list, rational_funs[it], term_num, verbose))
     return out_dic
+
+
+def find_period_of_coeff_mod(mod_list, rational_fun, verbose=True):
+    # please let "x" be the variable in the rational function and let the constant term of the denominator of it be -1
+    denom_coeff = rational_fun.denominator().coefficients(sparse=False)
+    denom_deg = rational_fun.denominator().degree(x)
+    mat = [denom_coeff[1:]]
+    for it in range(denom_deg - 1):
+        tmp = [0] * denom_deg
+        tmp[it] = 1
+        mat.append(tmp)
+    mat = Matrix(mat)
+    output = {}
+    for m in mod_list:
+        period_mod = mat.change_ring(GF(m)).multiplicative_order()
+        output[m] = period_mod
+        if verbose:
+            print("the period is {} mod {}".format(period_mod, m))
+    return output
+
+
+def find_zeros_in_coeff_mod(mod_list, rational_fun, verbose=True):
+    # please let "x" be the variable in the rational function and let the constant term of the denominator of it be -1
+    period_dic = find_period_of_coeff_mod(mod_list, rational_fun, False)
+    output = {}
+    for m in mod_list:
+        tmp = []
+        coeff_list = rational_fun.series(x, period_dic[m]+1).coefficients(sparse=False)
+        for it in range(1, period_dic[m]+1):
+            if coeff_list[it] == 0:
+                tmp.append(it)
+        output[m] = tmp
+    return output
+
+
+

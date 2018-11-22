@@ -163,7 +163,7 @@ def find_zeros_in_coeff_mod(mod_list, rational_fun, verbose=True):
         tmp = []
         coeff_list = rational_fun.series(x, period_dic[m]+1).coefficients(sparse=False)
         for it in range(1, period_dic[m]+1):
-            if coeff_list[it] == 0:
+            if ZZ(coeff_list[it]) % m == 0:
                 tmp.append(it)
         output[m] = tmp
     return output

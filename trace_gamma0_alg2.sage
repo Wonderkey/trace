@@ -169,4 +169,6 @@ def find_zeros_in_coeff_mod(mod_list, rational_fun, verbose=True):
     return output
 
 
-
+def list_n_terms(rational_fun, term_num=50):
+    coeff_list = rational_fun.series(x, term_num).coefficients(sparse=False)
+    return coeff_list

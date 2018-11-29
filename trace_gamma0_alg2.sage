@@ -25,6 +25,7 @@ def pre_cal_c(N, n, chi):
 def gen_generating_fun(n, N, eps_dic, precal_c=False):
     # N, n coprime, n not a square
     # get the generating functions given n, N and epsilon_s's
+    S.<x> = ZZ[]
     chi = trivial_character(N)
     if precal_c == False:
         precal_c = pre_cal_c(N, n, chi)
@@ -38,12 +39,16 @@ def gen_generating_fun(n, N, eps_dic, precal_c=False):
         R -= eps_dic[abs(s)] * tmp * (n * x + 1) / (n^2 * x^2 + (2*n-s^2) * x + 1) / 2
     for d in d_set:
         tmp = 0
-        s = n / d + d
+        s = n.divide_knowing_divisible_by(d) + d
         for f in divisors(tt(s, n)):
             tmp += hij_b(s, f, n) * precal_c[(s,f)]
-        R += tmp * (2 * d^2) / (n - d^2) / (d^2 * x - 1)
-    R = R.simplify_full()
-    return R
+        R += tmp * (2 * d^2) / ((n - d^2) * (d^2 * x - 1))
+    #R = R.simplify_full()
+    Rn = R.numerator()
+    Rnd = Rn.denominator()
+    Rd = R.denominator()
+    Rdd = Rd.denominator()
+    return S(Rn*Rnd*Rdd)/S(Rd*Rdd*Rnd)
 
 
 def list_generating_fun_search(n, N, eps_dic, s_num, current_s, output, verbose, zero_filter, precal_c):
@@ -161,9 +166,14 @@ def find_zeros_in_coeff_mod(mod_list, rational_fun, verbose=True):
     output = {}
     for m in mod_list:
         tmp = []
-        coeff_list = rational_fun.series(x, period_dic[m]+1).coefficients(sparse=False)
-        for it in range(1, period_dic[m]+1):
-            if ZZ(coeff_list[it]) % m == 0:
+        K = GF(m)
+        S.<x> = K[[]]
+        num = rational_fun.numerator()
+        den = rational_fun.denominator()
+        p = period_dic[m]
+        h = S(num + O(x^(p+1)))/S(den + O(x^(p+1)))
+        for it in range(1, p+1):
+            if h[it] == 0:
                 tmp.append(it)
         output[m] = tmp
     return output
